@@ -1,0 +1,46 @@
+{
+  "name": "@sveda-ai/node-sdk",
+  "version": "0.1.0",
+  "description": "Node SDK for the Sveda AI sidecar HTTP API (embed tokens, streaming chat, histories).",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "index.d.ts",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neresson/sveda-node-sdk.git"
+  },
+  "homepage": "https://github.com/neresson/sveda-node-sdk",
+  "bugs": {
+    "url": "https://github.com/neresson/sveda-node-sdk/issues"
+  },
+  "keywords": [
+    "sveda",
+    "ai",
+    "copilot",
+    "sdk",
+    "client"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}
