@@ -36,14 +36,16 @@
     "type": "git",
     "url": "git+https://github.com/neresson/sveda-node-sdk.git"
   },
-  "homepage": "https://github.com/neresson/sveda-node-sdk",
+  "homepage": "https://sveda.dev/docs/hosts/node",
   "bugs": {
     "url": "https://github.com/neresson/sveda-node-sdk/issues"
   },
   "keywords": [
     "sveda",
     "ai",
+    "agent",
     "copilot",
+    "mcp",
     "sdk",
     "client"
   ],

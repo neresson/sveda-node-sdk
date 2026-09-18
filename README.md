@@ -1,6 +1,8 @@
 # sveda-node-sdk
 
-Node SDK for the [Sveda AI](https://github.com/neresson/sveda) sidecar HTTP API and host MCP integration.
+Node SDK for the [Sveda](https://sveda.dev) sidecar HTTP API and host MCP integration.
+
+Docs: [sveda.dev/docs/hosts/node](https://sveda.dev/docs/hosts/node)
 
 npm: `@sveda-ai/node-sdk`
 
