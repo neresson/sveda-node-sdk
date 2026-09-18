@@ -72,10 +72,167 @@ export class SvedaClient {
   constructor(options?: SvedaClientOptions);
 }
 
-export function startHostSession(options: {
+export const MODE_READ: 'read';
+export const MODE_WRITE: 'write';
+export const MODE_DELETE: 'delete';
+export const MCP_PROTOCOL_VERSION: '2025-11-25';
+export const DEFAULT_MCP_PATH: '/mcp/sveda';
+export const DEFAULT_MCP_ABILITY: 'sveda:mcp';
+export const PAGE_CONTEXT_HEADER: 'x-sveda-page-context';
+export const CHAT_ID_HEADER: 'x-sveda-chat-id';
+
+export type HostTool = {
+  name: string | (() => string);
+  description: string | (() => string);
+  mode?: string | (() => string);
+  domain?: string | (() => string);
+  schema?: (() => Record<string, unknown>) | Record<string, unknown>;
+  inputSchema?: Record<string, unknown>;
+  handle: (
+    arguments: Record<string, unknown>,
+    context?: { user?: unknown; pageContext?: unknown; chatId?: string | null },
+  ) => unknown | Promise<unknown>;
+};
+
+export type HostManagerOptions = {
+  baseUrl?: string;
+  base_url?: string;
+  hostApiKey?: string;
+  host_api_key?: string;
+  timeout?: number;
+  fetch?: typeof fetch;
+  mcpPath?: string;
+  mcpUrl?: string;
+  mcp?: {
+    path?: string;
+    url?: string;
+    serverName?: string;
+    serverVersion?: string;
+    instructions?: string;
+    ability?: string;
+    tokenTtlSeconds?: number;
+  };
+  serverName?: string;
+  serverVersion?: string;
+  instructions?: string;
+  mcpAbility?: string;
+  tokenTtlSeconds?: number;
+  visitorPrefix?: string;
+  session?: { visitorPrefix?: string };
+  tokenStore?: McpTokenStore;
+  authorizeUsing?: (user: unknown) => boolean;
+  afterAuthenticateUsing?: (user: unknown) => void | Promise<void>;
+  resolveToolsUsing?: () => HostTool[];
+  visitorIdUsing?: (user: unknown) => string;
+  mintTokenUsing?: (user: unknown) => string | Promise<string>;
+  verifyBearerTokenUsing?: (
+    plainToken: string,
+  ) => Promise<{ user: unknown } | null> | { user: unknown } | null;
+};
+
+export class McpTokenStore {
+  mint(
+    userId: string,
+    options?: { ability?: string; ttlSeconds?: number; tokenName?: string },
+  ): string;
+  verify(plainToken: string, expectedAbility?: string): { userId: string; ability: string } | null;
+  revokeForUser(userId: string, tokenName?: string): void;
+}
+
+export class HostManager {
   baseUrl: string;
   hostApiKey: string;
+  mcpPath: string;
+  mcpUrl: string;
+  serverName: string;
+  serverVersion: string;
+  instructions: string;
+  mcpAbility: string;
+  tokenTtlSeconds: number;
+  visitorPrefix: string;
+  tokenStore: McpTokenStore | null;
+  authorizeUsing: ((user: unknown) => boolean) | null;
+  afterAuthenticateUsing: ((user: unknown) => void | Promise<void>) | null;
+  resolveToolsUsing: (() => HostTool[]) | null;
+  visitorIdUsing: ((user: unknown) => string) | null;
+  mintTokenUsing: ((user: unknown) => string | Promise<string>) | null;
+  verifyBearerTokenUsing:
+    | ((plainToken: string) => Promise<{ user: unknown } | null> | { user: unknown } | null)
+    | null;
+  constructor(options?: HostManagerOptions);
+  authorizeUsing(callback: (user: unknown) => boolean): this;
+  afterAuthenticateUsing(callback: (user: unknown) => void | Promise<void>): this;
+  resolveToolsUsing(callback: () => HostTool[]): this;
+  visitorIdUsing(callback: (user: unknown) => string): this;
+  mintTokenUsing(callback: (user: unknown) => string | Promise<string>): this;
+  verifyBearerTokenUsing(
+    callback: (
+      plainToken: string,
+    ) => Promise<{ user: unknown } | null> | { user: unknown } | null,
+  ): this;
+  authorize(user: unknown): boolean;
+  afterAuthenticate(user: unknown): Promise<void>;
+  resolveTools(): HostTool[];
+  visitorId(user: unknown): string;
+  mintMcpToken(user: unknown): Promise<string>;
+  defaultMintMcpToken(user: unknown): string;
+  mcpPublicUrl(requestOrigin?: string): string;
+  isConfigured(): boolean;
+  hostClient(): SvedaClient;
+  startSession(
+    user: unknown,
+    options?: { requestOrigin?: string },
+  ): Promise<{
+    origin: string;
+    token: string;
+    expires_in: number;
+    appearance: Record<string, unknown> | null;
+  }>;
+  authenticateBearerToken(plainToken: string): Promise<{ user: unknown } | null>;
+}
+
+export function buildInputSchema(tool: HostTool): Record<string, unknown>;
+export function toolAnnotations(mode: string): Record<string, boolean>;
+
+export function handleHostMcpRequest(
+  host: HostManager,
+  body: unknown,
+  context: { user: unknown; headers?: Record<string, string | string[] | undefined> },
+): Promise<{
+  status: number;
+  body: Record<string, unknown> | null;
+  sessionId?: string;
+}>;
+
+export function createAuthenticateHostMcpMiddleware(
+  host: HostManager,
+): (req: unknown, res: unknown, next: (error?: unknown) => void) => Promise<void>;
+
+export function createHostMcpHandler(
+  host: HostManager,
+): (req: unknown, res: unknown) => Promise<void>;
+
+export function createHostMcpRouter(host: HostManager): (req: import('http').IncomingMessage, res: import('http').ServerResponse, next?: () => void) => void;
+
+export function executeHostMcpRequest(
+  host: HostManager,
+  input: {
+    authorization?: string | null;
+    headers?: Record<string, string>;
+    body: unknown;
+  },
+): Promise<{ status: number; body: unknown; headers: Record<string, string> }>;
+
+export function startHostSession(options: {
+  host?: HostManager;
+  user?: unknown;
+  baseUrl?: string;
+  hostApiKey?: string;
   visitorId?: string;
+  hostMcpUrl?: string;
+  hostMcpToken?: string;
+  mintMcpToken?: () => string | Promise<string>;
+  requestOrigin?: string;
   fetch?: typeof fetch;
 }): Promise<{
   origin: string;
