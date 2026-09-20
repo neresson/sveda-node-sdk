@@ -1,7 +1,7 @@
 {
   "name": "@sveda-ai/node-sdk",
-  "version": "0.2.0",
-  "description": "Node SDK for the Sveda AI sidecar HTTP API (embed tokens, streaming chat, histories).",
+  "version": "0.2.1",
+  "description": "Embed a Sveda AI agent from Node (Express, Nest, Next). https://sveda.dev/docs/hosts/node",
   "type": "module",
   "main": "./src/index.js",
   "types": "./index.d.ts",
