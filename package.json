@@ -1,6 +1,6 @@
 {
   "name": "@sveda-ai/node-sdk",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Embed a Sveda AI agent from Node (Express, Nest, Next). https://sveda.dev/docs/hosts/node",
   "type": "module",
   "main": "./src/index.js",

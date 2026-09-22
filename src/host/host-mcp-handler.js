@@ -160,7 +160,7 @@ export async function handleHostMcpRequest(host, body, context) {
 
   if (method === 'tools/list') {
     const perPage = Math.min(250, Math.max(1, Number(params.per_page ?? params.perPage ?? 250)));
-    const tools = host.resolveTools().map(toMcpTool);
+    const tools = host.resolveTools(callContext.user).map(toMcpTool);
     const cursor = typeof params.cursor === 'string' ? params.cursor : '';
     const start = cursor === '' ? 0 : Number.parseInt(cursor, 10);
     const slice = tools.slice(start, start + perPage);
@@ -186,7 +186,9 @@ export async function handleHostMcpRequest(host, body, context) {
         ? params.arguments
         : {};
 
-    const tool = host.resolveTools().find((candidate) => toolName(candidate) === name);
+    const tool = host
+      .resolveTools(callContext.user)
+      .find((candidate) => toolName(candidate) === name);
     if (!tool) {
       return {
         status: 200,

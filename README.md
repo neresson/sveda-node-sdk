@@ -63,7 +63,9 @@ const host = new HostManager({
   instructions: 'Tools for the signed-in user.',
 });
 
-host.resolveToolsUsing(() => [
+host.policyUsing((user) => (user.role === 'agent' ? 'agent' : 'reader'));
+
+host.resolveToolsUsing((user) => [
   {
     name: 'search_posts',
     description: 'Search posts by title or body.',

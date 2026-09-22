@@ -56,6 +56,8 @@ export class SvedaClient {
       host_mcp_url?: string;
       hostMcpToken?: string;
       host_mcp_token?: string;
+      policy?: string | null;
+      grants?: Record<string, unknown> | null;
     }): Promise<EmbedToken>;
     config(): Promise<Record<string, unknown>>;
   };
@@ -122,7 +124,8 @@ export type HostManagerOptions = {
   tokenStore?: McpTokenStore;
   authorizeUsing?: (user: unknown) => boolean;
   afterAuthenticateUsing?: (user: unknown) => void | Promise<void>;
-  resolveToolsUsing?: () => HostTool[];
+  resolveToolsUsing?: (user?: unknown) => HostTool[];
+  policyUsing?: (user: unknown) => string | null | undefined;
   visitorIdUsing?: (user: unknown) => string;
   mintTokenUsing?: (user: unknown) => string | Promise<string>;
   verifyBearerTokenUsing?: (
@@ -153,7 +156,8 @@ export class HostManager {
   tokenStore: McpTokenStore | null;
   authorizeUsing: ((user: unknown) => boolean) | null;
   afterAuthenticateUsing: ((user: unknown) => void | Promise<void>) | null;
-  resolveToolsUsing: (() => HostTool[]) | null;
+  resolveToolsUsing: ((user?: unknown) => HostTool[]) | null;
+  policyUsing: ((user: unknown) => string | null | undefined) | null;
   visitorIdUsing: ((user: unknown) => string) | null;
   mintTokenUsing: ((user: unknown) => string | Promise<string>) | null;
   verifyBearerTokenUsing:
@@ -162,7 +166,8 @@ export class HostManager {
   constructor(options?: HostManagerOptions);
   authorizeUsing(callback: (user: unknown) => boolean): this;
   afterAuthenticateUsing(callback: (user: unknown) => void | Promise<void>): this;
-  resolveToolsUsing(callback: () => HostTool[]): this;
+  resolveToolsUsing(callback: (user?: unknown) => HostTool[]): this;
+  policyUsing(callback: (user: unknown) => string | null | undefined): this;
   visitorIdUsing(callback: (user: unknown) => string): this;
   mintTokenUsing(callback: (user: unknown) => string | Promise<string>): this;
   verifyBearerTokenUsing(
@@ -172,7 +177,8 @@ export class HostManager {
   ): this;
   authorize(user: unknown): boolean;
   afterAuthenticate(user: unknown): Promise<void>;
-  resolveTools(): HostTool[];
+  resolveTools(user?: unknown): HostTool[];
+  policyFor(user: unknown): string | null;
   visitorId(user: unknown): string;
   mintMcpToken(user: unknown): Promise<string>;
   defaultMintMcpToken(user: unknown): string;

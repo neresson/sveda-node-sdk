@@ -49,6 +49,16 @@ class Embed {
       payload.host_mcp_token = hostMcpToken;
     }
 
+    const policy = params.policy;
+    if (present(policy)) {
+      payload.policy = policy;
+    }
+
+    const grants = params.grants;
+    if (grants !== undefined && grants !== null && typeof grants === 'object') {
+      payload.grants = grants;
+    }
+
     const response = await this.client.requestJson('POST', '/sveda/embed/token', payload);
 
     return {

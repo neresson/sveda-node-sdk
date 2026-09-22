@@ -207,3 +207,89 @@ test('executeHostMcpRequest authenticates and dispatches JSON-RPC', async () => 
   assert.equal(list.status, 200);
   assert.ok(Array.isArray(list.body.result.tools));
 });
+
+test('HostManager startSession sends policy on embed token mint', async () => {
+  /** @type {Array<Record<string, unknown>>} */
+  const bodies = [];
+
+  const host = new HostManager({
+    baseUrl: 'http://127.0.0.1:8787',
+    hostApiKey: 'host-secret',
+    mcpUrl: 'https://app.test/mcp/sveda',
+    fetch: async (_url, options = {}) => {
+      bodies.push(JSON.parse(String(options.body)));
+      return new Response(
+        JSON.stringify({
+          token: 'sveda_embed_test.token',
+          visitor_id: 'host-1',
+          expires_in: 3600,
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      );
+    },
+  });
+  host.resolveToolsUsing(() => [echoHostTool]);
+  host.policyUsing(() => 'reader');
+
+  const session = await host.startSession({ id: 1 });
+  assert.equal(session.token, 'sveda_embed_test.token');
+  assert.equal(bodies[0].policy, 'reader');
+});
+
+test('resolveTools receives user and tools/call rejects unknown tools for that user', async () => {
+  const host = new HostManager();
+  /** @type {unknown[]} */
+  const seen = [];
+  host.resolveToolsUsing((user) => {
+    seen.push(user);
+    if (user && typeof user === 'object' && user.id === 'user-1') {
+      return [echoHostTool];
+    }
+    return [];
+  });
+
+  const list = await handleHostMcpRequest(
+    host,
+    { jsonrpc: '2.0', id: 1, method: 'tools/list', params: { per_page: 250 } },
+    { user: { id: 'user-1' }, headers: {} },
+  );
+  assert.deepEqual(seen[0], { id: 'user-1' });
+  assert.equal(list.body.result.tools[0].name, 'echo_message');
+
+  const denied = await handleHostMcpRequest(
+    host,
+    {
+      jsonrpc: '2.0',
+      id: 2,
+      method: 'tools/call',
+      params: { name: 'echo_message', arguments: { message: 'nope' } },
+    },
+    { user: { id: 'other' }, headers: {} },
+  );
+  assert.equal(denied.body.result.isError, true);
+  assert.match(denied.body.result.content[0].text, /Unknown tool/);
+});
+
+test('zero-parameter resolveToolsUsing callback still works', async () => {
+  const host = new HostManager();
+  host.resolveToolsUsing(() => [echoHostTool]);
+
+  const list = await handleHostMcpRequest(
+    host,
+    { jsonrpc: '2.0', id: 1, method: 'tools/list', params: { per_page: 250 } },
+    { user: { id: 'user-1' }, headers: {} },
+  );
+  assert.equal(list.body.result.tools[0].name, 'echo_message');
+
+  const call = await handleHostMcpRequest(
+    host,
+    {
+      jsonrpc: '2.0',
+      id: 2,
+      method: 'tools/call',
+      params: { name: 'echo_message', arguments: { message: 'hello' } },
+    },
+    { user: { id: 'user-1' }, headers: {} },
+  );
+  assert.equal(call.body.result.isError, false);
+});

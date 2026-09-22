@@ -34,6 +34,7 @@ export class HostManager {
     this._authorizeUsing = options.authorizeUsing ?? null;
     this._afterAuthenticateUsing = options.afterAuthenticateUsing ?? null;
     this._resolveToolsUsing = options.resolveToolsUsing ?? null;
+    this._policyUsing = options.policyUsing ?? null;
     this._visitorIdUsing = options.visitorIdUsing ?? null;
     this._mintTokenUsing = options.mintTokenUsing ?? null;
     this._verifyBearerTokenUsing = options.verifyBearerTokenUsing ?? null;
@@ -51,6 +52,11 @@ export class HostManager {
 
   resolveToolsUsing(callback) {
     this._resolveToolsUsing = callback;
+    return this;
+  }
+
+  policyUsing(callback) {
+    this._policyUsing = callback;
     return this;
   }
 
@@ -83,12 +89,15 @@ export class HostManager {
     }
   }
 
-  resolveTools() {
+  resolveTools(user) {
     if (this._resolveToolsUsing === null) {
       return [];
     }
 
-    const tools = this._resolveToolsUsing();
+    const tools =
+      user === undefined || user === null
+        ? this._resolveToolsUsing()
+        : this._resolveToolsUsing(user);
     if (!Array.isArray(tools)) {
       return [];
     }
@@ -96,6 +105,19 @@ export class HostManager {
     return tools.filter(
       (tool) => tool && (typeof tool.name === 'function' || typeof tool.name === 'string'),
     );
+  }
+
+  policyFor(user) {
+    if (this._policyUsing === null) {
+      return null;
+    }
+
+    const value = this._policyUsing(user);
+    if (!present(value)) {
+      return null;
+    }
+
+    return String(value).trim();
   }
 
   visitorId(user) {
@@ -176,10 +198,12 @@ export class HostManager {
 
     let created;
     try {
+      const policy = this.policyFor(user);
       created = await this.hostClient().embed.createToken({
         visitorId,
         hostMcpUrl,
         hostMcpToken: mcpToken,
+        policy,
       });
     } catch (error) {
       const wrapped = new Error(
