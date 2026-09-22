@@ -91,6 +91,7 @@ test('authenticated user can list and call tools', async () => {
   const tool = list.body.result.tools.find((entry) => entry.name === 'echo_message');
   assert.equal(tool._meta.domain, 'demo');
   assert.equal(tool._meta.mode, 'read');
+  assert.equal(tool._meta.confirmation, undefined);
 
   const call = await mcpRequest(
     host,
@@ -292,4 +293,29 @@ test('zero-parameter resolveToolsUsing callback still works', async () => {
     { user: { id: 'user-1' }, headers: {} },
   );
   assert.equal(call.body.result.isError, false);
+});
+
+test('publishes confirmation only when a tool requires it', async () => {
+  const host = new HostManager();
+  host.resolveToolsUsing(() => [
+    echoHostTool,
+    {
+      ...echoHostTool,
+      name: 'delete_post',
+      mode: 'delete',
+      confirmation: 'required',
+    },
+  ]);
+
+  const list = await handleHostMcpRequest(
+    host,
+    { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} },
+    { user: { id: 'user-1' }, headers: {} },
+  );
+  const tools = list.body.result.tools;
+  const echo = tools.find((tool) => tool.name === 'echo_message');
+  const remove = tools.find((tool) => tool.name === 'delete_post');
+  assert.equal(echo._meta.confirmation, undefined);
+  assert.equal(remove._meta.confirmation, 'required');
+  assert.equal(remove._meta.mode, 'delete');
 });

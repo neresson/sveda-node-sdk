@@ -88,6 +88,7 @@ export type HostTool = {
   description: string | (() => string);
   mode?: string | (() => string);
   domain?: string | (() => string);
+  confirmation?: 'required' | 'auto' | (() => 'required' | 'auto');
   schema?: (() => Record<string, unknown>) | Record<string, unknown>;
   inputSchema?: Record<string, unknown>;
   handle: (

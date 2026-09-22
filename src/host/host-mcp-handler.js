@@ -34,8 +34,22 @@ function toolDomain(tool) {
   return String(tool.domain ?? 'other');
 }
 
+function toolConfirmation(tool) {
+  const value = typeof tool.confirmation === 'function' ? tool.confirmation() : tool.confirmation;
+
+  return value === 'required' ? 'required' : null;
+}
+
 function toMcpTool(tool) {
   const name = toolName(tool);
+  const meta = {
+    domain: toolDomain(tool),
+    mode: toolMode(tool),
+  };
+  const confirmation = toolConfirmation(tool);
+  if (confirmation) {
+    meta.confirmation = confirmation;
+  }
 
   return {
     name,
@@ -43,10 +57,7 @@ function toMcpTool(tool) {
     description: toolDescription(tool),
     inputSchema: buildInputSchema(tool),
     annotations: toolAnnotations(toolMode(tool)),
-    _meta: {
-      domain: toolDomain(tool),
-      mode: toolMode(tool),
-    },
+    _meta: meta,
   };
 }
 
