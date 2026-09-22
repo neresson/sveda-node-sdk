@@ -40,3 +40,12 @@ jobs:
           fi
           echo "Publishing ${name}@${ver}"
           npm publish --access public --ignore-scripts
+
+      - name: Trigger sveda SDK compatibility matrix
+        if: ${{ secrets.SVEDA_REPO_DISPATCH_TOKEN != '' }}
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.SVEDA_REPO_DISPATCH_TOKEN }}
+          repository: neresson/sveda
+          event-type: sdk-release
+          client-payload: '{"sdk":"node","version":"${{ github.ref_name }}"}'

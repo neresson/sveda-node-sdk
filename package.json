@@ -34,7 +34,9 @@
     }
   },
   "scripts": {
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "test:contract": "node --test test/contract.test.js",
+    "test:live": "node --test test/live.smoke.test.js"
   },
   "repository": {
     "type": "git",
