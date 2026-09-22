@@ -179,6 +179,7 @@ export class HostManager {
   authorize(user: unknown): boolean;
   afterAuthenticate(user: unknown): Promise<void>;
   resolveTools(user?: unknown): HostTool[];
+  describe(user?: unknown): Record<string, unknown>;
   policyFor(user: unknown): string | null;
   visitorId(user: unknown): string;
   mintMcpToken(user: unknown): Promise<string>;

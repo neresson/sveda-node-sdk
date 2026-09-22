@@ -118,6 +118,16 @@ await startHostSession({
 });
 ```
 
+## Agent introspection
+
+Print the registered tool manifest as JSON (`sveda.host/v1`):
+
+```bash
+npx sveda-describe ./lib/sveda-host.js:host
+```
+
+`host.describe(user)` returns the same structure programmatically. With a logged-in dev session, playground apps expose `GET /sveda/tools`.
+
 ## License
 
 GNU Affero General Public License v3.0. See [LICENSE](LICENSE).

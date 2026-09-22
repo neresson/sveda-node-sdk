@@ -1,5 +1,6 @@
 import { SvedaClient } from '../client.js';
 import { DEFAULT_MCP_ABILITY, DEFAULT_MCP_PATH } from './constants.js';
+import { buildHostManifest } from './manifest.js';
 import { McpTokenStore } from './mcp-token-store.js';
 
 function trimSlash(value) {
@@ -87,6 +88,10 @@ export class HostManager {
     if (this._afterAuthenticateUsing !== null) {
       await this._afterAuthenticateUsing(user);
     }
+  }
+
+  describe(user) {
+    return buildHostManifest(this, user);
   }
 
   resolveTools(user) {

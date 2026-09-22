@@ -4,62 +4,7 @@ import {
   PAGE_CONTEXT_HEADER,
   PAGE_CONTEXT_MAX_BYTES,
 } from './constants.js';
-import { buildInputSchema, toolAnnotations } from './schema.js';
-
-function toolName(tool) {
-  return typeof tool.name === 'function' ? tool.name() : String(tool.name ?? '');
-}
-
-function toolDescription(tool) {
-  if (typeof tool.description === 'function') {
-    return tool.description();
-  }
-
-  return String(tool.description ?? '');
-}
-
-function toolMode(tool) {
-  if (typeof tool.mode === 'function') {
-    return tool.mode();
-  }
-
-  return String(tool.mode ?? 'read');
-}
-
-function toolDomain(tool) {
-  if (typeof tool.domain === 'function') {
-    return tool.domain();
-  }
-
-  return String(tool.domain ?? 'other');
-}
-
-function toolConfirmation(tool) {
-  const value = typeof tool.confirmation === 'function' ? tool.confirmation() : tool.confirmation;
-
-  return value === 'required' ? 'required' : null;
-}
-
-function toMcpTool(tool) {
-  const name = toolName(tool);
-  const meta = {
-    domain: toolDomain(tool),
-    mode: toolMode(tool),
-  };
-  const confirmation = toolConfirmation(tool);
-  if (confirmation) {
-    meta.confirmation = confirmation;
-  }
-
-  return {
-    name,
-    title: name,
-    description: toolDescription(tool),
-    inputSchema: buildInputSchema(tool),
-    annotations: toolAnnotations(toolMode(tool)),
-    _meta: meta,
-  };
-}
+import { toMcpTool, toolName } from './manifest.js';
 
 function jsonRpcResult(id, result) {
   return {
