@@ -41,8 +41,19 @@ jobs:
           echo "Publishing ${name}@${ver}"
           npm publish --access public --ignore-scripts
 
+      - name: Check SDK dispatch token
+        id: dispatch
+        env:
+          SVEDA_REPO_DISPATCH_TOKEN: ${{ secrets.SVEDA_REPO_DISPATCH_TOKEN }}
+        run: |
+          if [ -n "$SVEDA_REPO_DISPATCH_TOKEN" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Trigger sveda SDK compatibility matrix
-        if: ${{ secrets.SVEDA_REPO_DISPATCH_TOKEN != '' }}
+        if: steps.dispatch.outputs.enabled == 'true'
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.SVEDA_REPO_DISPATCH_TOKEN }}
