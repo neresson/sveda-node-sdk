@@ -130,4 +130,4 @@ npx sveda-describe ./lib/sveda-host.js:host
 
 ## License
 
-GNU Affero General Public License v3.0. See [LICENSE](LICENSE).
+Apache License 2.0. See [LICENSE](LICENSE).

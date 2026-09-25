@@ -1,6 +1,6 @@
 {
   "name": "@sveda-ai/node-sdk",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Embed a Sveda AI agent from Node (Express, Nest, Next). https://sveda.dev/docs/hosts/node",
   "type": "module",
   "main": "./src/index.js",
@@ -55,7 +55,7 @@
     "sdk",
     "client"
   ],
-  "license": "AGPL-3.0-only",
+  "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
   }
